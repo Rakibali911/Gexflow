@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEX Flow Pro — 3-in-1</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.32.0/plotly.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#888;font-family:'Courier New',monospace;font-size:13px;min-height:100vh}
+.hdr{padding:12px 14px 8px;background:#000;border-bottom:1px solid #111;position:sticky;top:0;z-index:100}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.logo{color:#fff;font-size:14px;font-weight:700;letter-spacing:2px}
+.logo span{color:#39FF14}
+.btn-all{background:#000;border:1px solid #39FF14;color:#39FF14;font-family:'Courier New',monospace;font-size:11px;font-weight:700;padding:8px 14px;cursor:pointer;letter-spacing:1px}
+.btn-all:disabled{border-color:#1a2a1a;color:#1a2a1a;cursor:not-allowed}
+.hdr-sub{font-size:9px;color:#2a2a2a;letter-spacing:0.5px}
+.hdr-sub b{color:#444}
+.section{border-bottom:2px solid #080808}
+.sec-head{padding:10px 14px;background:#030303;display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;border-left:3px solid #39FF14}
+.sec-head.Q{border-left-color:#00FFFF}
+.sec-head.G{border-left-color:#FFDD00}
+.sec-info{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.sec-sym{color:#fff;font-size:16px;font-weight:700;min-width:38px;letter-spacing:1px}
+.sec-price{font-size:14px;font-weight:700;color:#39FF14;min-width:72px}
+.sec-head.Q .sec-price{color:#00FFFF}
+.sec-head.G .sec-price{color:#FFDD00}
+.stats{display:flex;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch;flex:1;min-width:0}
+.st{flex:0 0 auto;padding:0 10px;text-align:center;border-left:1px solid #0e0e0e}
+.st:first-child{border-left:none}
+.sl{font-size:8px;color:#2a2a2a;text-transform:uppercase;letter-spacing:0.5px}
+.sv{font-size:12px;font-weight:700;color:#fff;margin-top:1px;font-family:'Courier New',monospace}
+.sv.g{color:#39FF14}.sv.r{color:#FF3131}.sv.c{color:#00FFFF}.sv.y{color:#FFDD00}
+.exp-wrap{padding:8px 14px;background:#020202;border-bottom:1px solid #0a0a0a}
+.exp-lbl{font-size:9px;color:#2a2a2a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.exp-row{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+.chip{flex:0 0 auto;border:1px solid #141414;background:#000;padding:6px 10px;cursor:pointer;text-align:left}
+.chip:active{opacity:0.7}
+.chip.on{border-color:#39FF14;background:rgba(57,255,20,0.05)}
+.chip.on.Q{border-color:#00FFFF;background:rgba(0,255,255,0.05)}
+.chip.on.G{border-color:#FFDD00;background:rgba(255,221,0,0.05)}
+.cd{font-size:11px;color:#777;font-weight:700;display:block;white-space:nowrap}
+.chip.on .cd{color:#fff}
+.cs{font-size:9px;color:#222;display:block;margin-top:1px;white-space:nowrap}
+.chip.on .cs{color:#555}
+.cbox{padding:2px 4px;background:#000}
+.cempty{height:280px;display:flex;align-items:center;justify-content:center;color:#1a1a1a;font-size:11px;letter-spacing:1px;border:1px solid #0a0a0a;margin:2px}
+.cload{height:280px;display:flex;align-items:center;justify-content:center;color:#2a2a2a;font-size:11px;letter-spacing:2px;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
+.foot{text-align:center;padding:16px;font-size:9px;color:#151515;letter-spacing:2px;border-top:1px solid #080808}
+::-webkit-scrollbar{height:2px;width:2px;background:#000}
+::-webkit-scrollbar-thumb{background:#111}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-top">
+    <div class="logo">GEX <span>FLOW</span> PRO</div>
+    <button class="btn-all" id="btnAll" onclick="loadAll()">⟳ REFRESH ALL</button>
+  </div>
+  <div class="hdr-sub">Updated: <b id="tsMain">-- select expiries then refresh --</b></div>
+</header>
+
+<!-- SPY -->
+<div class="section">
+  <div class="sec-head" id="hSPY">
+    <div class="sec-info"><div class="sec-sym">SPY</div><div class="sec-price" id="pSPY">--</div></div>
+    <div class="stats">
+      <div class="st"><div class="sl">CALL WALL</div><div class="sv g" id="cwSPY">--</div></div>
+      <div class="st"><div class="sl">PUT WALL</div><div class="sv r" id="pwSPY">--</div></div>
+      <div class="st"><div class="sl">NET GEX</div><div class="sv" id="ngSPY">--</div></div>
+      <div class="st"><div class="sl">NET DEX</div><div class="sv" id="ndSPY">--</div></div>
+      <div class="st"><div class="sl">FLIP PT</div><div class="sv c" id="fpSPY">--</div></div>
+      <div class="st"><div class="sl">MAX PAIN</div><div class="sv y" id="mpSPY">--</div></div>
+    </div>
+  </div>
+  <div class="exp-wrap">
+    <div class="exp-lbl">SPY — Select Expiries (multi)</div>
+    <div class="exp-row" id="eSPY"><span style="color:#1a1a1a;font-size:10px">Loading...</span></div>
+  </div>
+  <div class="cbox"><div id="cSPY"><div class="cempty">Select expiries above → tap REFRESH ALL</div></div></div>
+</div>
+
+<!-- QQQ -->
+<div class="section">
+  <div class="sec-head Q" id="hQQQ">
+    <div class="sec-info"><div class="sec-sym">QQQ</div><div class="sec-price" id="pQQQ">--</div></div>
+    <div class="stats">
+      <div class="st"><div class="sl">CALL WALL</div><div class="sv g" id="cwQQQ">--</div></div>
+      <div class="st"><div class="sl">PUT WALL</div><div class="sv r" id="pwQQQ">--</div></div>
+      <div class="st"><div class="sl">NET GEX</div><div class="sv" id="ngQQQ">--</div></div>
+      <div class="st"><div class="sl">NET DEX</div><div class="sv" id="ndQQQ">--</div></div>
+      <div class="st"><div class="sl">FLIP PT</div><div class="sv c" id="fpQQQ">--</div></div>
+      <div class="st"><div class="sl">MAX PAIN</div><div class="sv y" id="mpQQQ">--</div></div>
+    </div>
+  </div>
+  <div class="exp-wrap">
+    <div class="exp-lbl">QQQ — Select Expiries (multi)</div>
+    <div class="exp-row" id="eQQQ"><span style="color:#1a1a1a;font-size:10px">Loading...</span></div>
+  </div>
+  <div class="cbox"><div id="cQQQ"><div class="cempty">Select expiries above → tap REFRESH ALL</div></div></div>
+</div>
+
+<!-- GLD -->
+<div class="section">
+  <div class="sec-head G" id="hGLD">
+    <div class="sec-info"><div class="sec-sym">GLD</div><div class="sec-price" id="pGLD">--</div></div>
+    <div class="stats">
+      <div class="st"><div class="sl">CALL WALL</div><div class="sv g" id="cwGLD">--</div></div>
+      <div class="st"><div class="sl">PUT WALL</div><div class="sv r" id="pwGLD">--</div></div>
+      <div class="st"><div class="sl">NET GEX</div><div class="sv" id="ngGLD">--</div></div>
+      <div class="st"><div class="sl">NET DEX</div><div class="sv" id="ndGLD">--</div></div>
+      <div class="st"><div class="sl">FLIP PT</div><div class="sv c" id="fpGLD">--</div></div>
+      <div class="st"><div class="sl">MAX PAIN</div><div class="sv y" id="mpGLD">--</div></div>
+    </div>
+  </div>
+  <div class="exp-wrap">
+    <div class="exp-lbl">GLD — Select Expiries (multi)</div>
+    <div class="exp-row" id="eGLD"><span style="color:#1a1a1a;font-size:10px">Loading...</span></div>
+  </div>
+  <div class="cbox"><div id="cGLD"><div class="cempty">Select expiries above → tap REFRESH ALL</div></div></div>
+</div>
+
+<div class="foot">GEX FLOW PRO &nbsp;·&nbsp; LIVE DATA ONLY &nbsp;·&nbsp; NOT FINANCIAL ADVICE</div>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
